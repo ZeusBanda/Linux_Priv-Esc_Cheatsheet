@@ -47,30 +47,16 @@ netstat -ano
 
 ```bash
 hostname
-```
-```bash
 uname -a
-```
-```bash
 cat /etc/lsb-release
-```
-```bash
 cat /proc/version
-```
-```bash
 cat /etc/os-release
-```
-```bash
 cat /etc/issue
-```
-```bash
 lscpu
 ```
 #### Check Running Process Information
 ```bash
 ps aux
-```
-```bash
 ps aux | grep root
 ```
 ### Kernel Exploitation Process
@@ -103,20 +89,10 @@ Pay particulalar attention to the following locations
 ### Enumerate Scheduled Tasks By checking the scheduled tasks
 ```bash
 crontab -l
-```
-```bash
 ls -lah /var/spool/cron
-```
-```bash
 ls -lah /etc/cron*
-```
-```bash
 cat /etc/at.allow
-```
-```bash
 cat /etc/at.deny
-```
-```bash
 systemctl list-timers --all
 ```
 ### Escalation via Cron Paths
