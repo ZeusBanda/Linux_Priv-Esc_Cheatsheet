@@ -1,4 +1,46 @@
 # Linux Privilege Escalation Cheat Sheet
+## Initial Enumeration
+### System Enumeration
+```bash
+hostname
+uname -a
+cat /proc/version
+cat /etc/issue
+lscpu
+```
+### Process Enumeration
+```bash
+ps aux
+ps aux | grep root
+```
+### User Enumeration
+```bash
+whoami
+id
+sudo -l
+cat /etc/passwd
+cat /etc/passwd | cut -d : -f 1
+cat /etc/shadow
+cat /etc/group
+```
+```bash
+history
+```
+### Network Enumeration
+```bash
+ifconfig
+ip a
+ip route
+arp -a
+ip neigh
+```
+```bash
+netstat -ano
+```
+### Password Hunting
+ 
+## Automated Enumeration
+
 ## Kernel Exploit
 ### Kernel Exploit Enumeration
 #### Check System Information
