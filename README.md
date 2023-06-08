@@ -111,6 +111,12 @@ Attempt the key
 ssh -i id_rsa <user>@<ip>
 ```
 
+## Escalation via Sudo
+### Sudo Shell Escaping
+### LD_PRELOAD
+
+
+
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
 ```bash
