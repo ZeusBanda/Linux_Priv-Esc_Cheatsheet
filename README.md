@@ -37,9 +37,6 @@ ip neigh
 ```bash
 netstat -ano
 ```
-### Password Hunting
- 
-## Automated Enumeration
 
 ## Kernel Exploit
 ### Kernel Exploit Enumeration
