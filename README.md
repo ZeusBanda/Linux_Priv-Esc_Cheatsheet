@@ -113,6 +113,16 @@ ssh -i id_rsa <user>@<ip>
 
 ## Escalation via Sudo
 ### Sudo Shell Escaping
+look for root NOPASSWORD
+```bash
+sudo -l
+```
+Check GTFOBins for the binary with sudo
+```url
+https://gtfobins.github.io/
+```
+Run the command found.
+
 ### LD_PRELOAD
 
 
